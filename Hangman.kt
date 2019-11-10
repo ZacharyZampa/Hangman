@@ -1,9 +1,56 @@
-import java.util.Scanner;
-import errors as errors
+import java.util.Scanner
 
 val alpha:HashMap<Char,Boolean> = HashMap<Char,Boolean>(26)
 var errors : Int = 0  // how many errors guessing player has made
-const val CRITERRORS = 6  // 6 errors is game over
+const val CRITERRORS = 5  // 6 errors is game over
+val attempted = java.util.ArrayList<Char>(6)
+val setPieces:HashMap<Int,String> = HashMap<Int,String>(6)
+
+fun generateSets() {
+    setPieces[0] = "  +---+\n" +
+            "  |   |\n" +
+            "      |\n" +
+            "      |\n" +
+            "      |\n" +
+            "      |\n" +
+            "========="
+
+    setPieces[1] = "  +---+\n" +
+            "  |   |\n" +
+            "  O   |\n" +
+            "      |\n" +
+            "      |\n" +
+            "      |\n" +
+            "========="
+    setPieces[2] = "  +---+\n" +
+            "  |   |\n" +
+            "  O   |\n" +
+            "  |   |\n" +
+            "      |\n" +
+            "      |\n" +
+            "========="
+    setPieces[3] = "  +---+\n" +
+            "  |   |\n" +
+            "  O   |\n" +
+            " /|\\ |\n" +
+            "      |\n" +
+            "      |\n" +
+            "========="
+    setPieces[4] = "  +---+\n" +
+            "  |   |\n" +
+            "  O   |\n" +
+            " /|\\  |\n" +
+            " /    |\n" +
+            "      |\n" +
+            "========="
+    setPieces[5] = "  +---+\n" +
+            "  |   |\n" +
+            "  O   |\n" +
+            " /|\\  |\n" +
+            " / \\  |\n" +
+            "      |\n" +
+            "========="
+}
 
 fun generateAlpha() {
     for (i in 65..90) {
@@ -34,6 +81,8 @@ fun playerMove(word: String, input: Scanner): Char {
         }
     }
 
+    // add to letters attempted list
+    attempted.add(move)
 
     if (move != '0' && word.contains(move)) {
         return move;
@@ -50,7 +99,7 @@ fun turnChoose(input: Scanner, word: String, playWord: String): String {
 
     if (word.contains(move)) {
         // add the correctly guessed letter to the word in progress
-        for (i in 0 until word.length) {
+        for (i in word.indices) {
             if (word[i].equals(move, true)) {
                 tmpPlay[i] = move
             }
@@ -77,11 +126,11 @@ fun checkEndConditions(winFlag : Boolean) {
 
 fun gameLoop(input : Scanner, side : Int, lan : Online) {
     var turn = 0
-    var word = ""
-    var playWord = ""
+    var word : String
+    var playWord : String
 
     if (side == 1) {
-        println("..Waiting for Challenger's word")
+        println("...Waiting for Challenger's word")
     }
 
     if (side == 0) {
@@ -95,7 +144,7 @@ fun gameLoop(input : Scanner, side : Int, lan : Online) {
         // client -- get word to beat
         word = lan.processLANResponse()
 
-        playWord = makePlayWord(word);
+        playWord = makePlayWord(word)
         println(playWord)
     }
     var tword = playWord
@@ -105,7 +154,9 @@ fun gameLoop(input : Scanner, side : Int, lan : Online) {
             // client turn
             playWord = turnChoose(input, word, playWord)
             lan.sendLANResponse(playWord)
+            print(setPieces[errors])
             println("Current progress is: $playWord")
+            println("Attempted words are: $attempted")
             println("Errors: $errors out of $CRITERRORS")
         } else if (side == 0) {
             playWord = lan.processLANResponse()
@@ -114,6 +165,7 @@ fun gameLoop(input : Scanner, side : Int, lan : Online) {
             }
             tword = playWord
             println("$word -vs- $playWord")
+            print(setPieces[errors])
             println("Errors: $errors out of $CRITERRORS")
         }
 
@@ -218,6 +270,7 @@ fun playLan(input : Scanner) {
 fun main() {
     println("Welcome to the Hangman Game!")
     generateAlpha()  // generate the alphabet to verify input
+    generateSets()  // generate the playing sets to display progress
     val input = Scanner(System.`in`)
     playLan(input)
 }
