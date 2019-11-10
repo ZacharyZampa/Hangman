@@ -1,2 +1,2 @@
 # Hangman
-A quickly made hangman game
+A quickly made hangman game that works over LAN.
